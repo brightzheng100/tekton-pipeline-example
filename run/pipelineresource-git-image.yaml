@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: List
+items:
+# git source - frontend
+- apiVersion: tekton.dev/v1alpha1
+  kind: PipelineResource
+  metadata:
+    name: pr-git-source-frontend
+  spec:
+    type: git
+    params:
+    - name: url
+      value: https://github.com/brightzheng100/workshop-quote-app-frontend
+# docker image - frontend
+- apiVersion: tekton.dev/v1alpha1
+  kind: PipelineResource
+  metadata:
+    name: pr-docker-image-frontend
+  spec:
+    type: image
+    params:
+    - name: url
+      value: registry:5000/workshop-quote-app-frontend:v0.1.0
+
+# git source - backend
+- apiVersion: tekton.dev/v1alpha1
+  kind: PipelineResource
+  metadata:
+    name: pr-git-source-backend
+  spec:
+    type: git
+    params:
+    - name: url
+      value: https://github.com/brightzheng100/workshop-quote-app-backend
+# docker image - backend
+- apiVersion: tekton.dev/v1alpha1
+  kind: PipelineResource
+  metadata:
+    name: pr-docker-image-backend
+  spec:
+    type: image
+    params:
+    - name: url
+      value: registry:5000/workshop-quote-app-backend:v0.1.0

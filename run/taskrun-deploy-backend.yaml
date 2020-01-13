@@ -1,0 +1,16 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TaskRun
+metadata:
+  generateName: taskrun-deploy-backend-
+spec:
+  serviceAccountName: sa-pipeline
+  taskRef:
+    name: task-deploy
+  inputs:
+    resources:
+    - name: git-source
+      resourceRef:
+        name: pr-git-source-backend
+    - name: docker-image
+      resourceRef:
+        name: pr-docker-image-backend

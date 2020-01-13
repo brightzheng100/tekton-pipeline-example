@@ -1,0 +1,15 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineRun
+metadata:
+  generateName: pipelinerun-build-push-deploy-frontend-
+spec:
+  serviceAccountName: sa-pipeline
+  pipelineRef:
+    name: pipeline-build-push-deploy
+  resources:
+    - name: git-source
+      resourceRef:
+        name: pr-git-source-frontend
+    - name: docker-image
+      resourceRef:
+        name: pr-docker-image-frontend
