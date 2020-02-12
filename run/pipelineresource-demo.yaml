@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: List
+items:
+# git source - demo
+- apiVersion: tekton.dev/v1alpha1
+  kind: PipelineResource
+  metadata:
+    name: pr-git-source-demo
+  spec:
+    type: git
+    params:
+    - name: url
+      value: https://github.com/brightzheng100/spring-boot-demo.git
+# docker image - frontend
+- apiVersion: tekton.dev/v1alpha1
+  kind: PipelineResource
+  metadata:
+    name: pr-docker-image-demo
+  spec:
+    type: image
+    params:
+    - name: url
+      value: registry:5000/spring-boot-demo:0.1.0
