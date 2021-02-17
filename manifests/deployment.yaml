@@ -10,7 +10,6 @@ spec:
       name: http
   selector:
     app: spring-boot-docker
-    version: v1
 ---
 apiVersion: apps/v1
 kind: Deployment
