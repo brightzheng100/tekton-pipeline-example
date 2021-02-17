@@ -1,0 +1,19 @@
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  generateName: buildah-
+spec:
+  taskRef:
+    name: buildah
+  params:
+    - name: IMAGE
+      value: 'image-registry.openshift-image-registry.svc:5000/tekton-pipelines/spring-boot-docker'
+    - name: TLSVERIFY
+      value: 'false'
+    - name: STORAGE_DRIVER
+      value: 'vfs'
+  workspaces:
+    - name: source
+      persistentVolumeClaim:
+        claimName: shared-workspace
+  serviceAccountName: tekton-pipeline

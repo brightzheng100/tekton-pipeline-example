@@ -1,0 +1,82 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: pipeline-git-clone-build-push-deploy
+spec:
+  description: |
+    this pipeline offers a typical CI/CD process, with a flow including:
+    - fetching a git repository as the source
+    - using buildah to build a Docker image by Dockerfile
+    - pusing the built Docker image to a desired repository
+    - deploying it to Kubernetes cluster
+  
+  # Parameters
+  params:
+  - name: repo-url
+    type: string
+    description: The git repository URL to clone from.
+  - name: tag-name
+    type: string
+    description: The git tag to clone.
+  - name: image-full-path-with-tag
+    type: string
+    description: The image full path to host the built image, with version tag, e.g. image-registry.openshift-image-registry.svc:5000/tekton-pipelines/spring-boot-docker:v1.0.0.
+
+  # Workspaces
+  workspaces:
+  - name: workspace
+  - name: maven-settings
+  
+  # Taksks
+  tasks:
+
+  # 1. Task - fetch-repository
+  - name: fetch-repository
+    taskRef:
+      name: git-clone
+    params:
+    - name: url
+      value: $(params.repo-url)
+    - name: revision
+      value: $(params.tag-name)
+    - name: deleteExisting
+      value: "true"
+    workspaces:
+    - name: output
+      workspace: workspace
+
+  # 2. Task - maven build
+  - name: maven
+    taskRef:
+      name: maven
+    runAfter:
+    - fetch-repository
+    params:
+    - name: GOALS
+      value:
+        - -B
+        - -DskipTests
+        - clean
+        - package
+    workspaces:
+    - name: maven-settings
+      workspace: maven-settings
+    - name: source
+      workspace: workspace
+
+  # 3. Task - buildah
+  - name: buildah
+    taskRef:
+      name: buildah
+    runAfter:
+    - maven
+    params:
+      - name: IMAGE
+        value: "$(params.image-full-path-with-tag)"
+      - name: TLSVERIFY
+        value: "false"
+      - name: STORAGE_DRIVER
+        value: "vfs"
+    workspaces:
+      - name: source
+        workspace: workspace

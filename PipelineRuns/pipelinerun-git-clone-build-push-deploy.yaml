@@ -1,0 +1,22 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineRun
+metadata:
+  generateName: pipelinerun-git-clone-build-push-deploy-
+spec:
+  serviceAccountName: tekton-pipeline
+  pipelineRef:
+    name: pipeline-git-clone-build-push-deploy
+  params:
+  - name: repo-url
+    value: https://github.com/brightzheng100/spring-boot-docker
+  - name: tag-name
+    value: master
+  - name: image-full-path-with-tag
+    value: image-registry.openshift-image-registry.svc:5000/tekton-pipelines/spring-boot-docker:v1.0.0
+  workspaces:
+  - name: maven-settings
+    configmap:
+      name: maven-settings
+  - name: workspace
+    persistentvolumeclaim:
+      claimName: shared-workspace
