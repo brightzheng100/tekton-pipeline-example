@@ -365,6 +365,49 @@ And then open your browser and access: http://localhost:9097
 
 ![Tekton UI](/screenshots/tekton-ui.png)
 
+## Triggers
+
+Until now we have seen how to create Tasks and Pipelines and run them manually.
+
+It's time to explore how to trigger it automatically using Triggers, based on some events.
+
+### Set Up Triggers in `tekton-pipelines` namespace
+
+```sh
+kubectl apply -f https://storage.googleapis.com/tekton-releases/triggers/previous/v0.11.2/release.yaml
+
+# In OCP, we need to grant permissions for service accounts
+oc adm policy add-scc-to-user anyuid -z tekton-triggers-controller -n tekton-pipelines
+oc adm policy add-scc-to-user anyuid -z tekton-triggers-webhook -n tekton-pipelines
+oc adm policy add-scc-to-user anyuid -z tekton-triggers-core-interceptors -n tekton-pipelines
+```
+
+### Typical Steps in `tekton-demo` working namespace
+
+```sh
+# create the trigger template
+kubectl apply -f Triggers/trigger-template.yaml -n tekton-demo
+
+# create the trigger binding
+kubectl apply -f Triggers/trigger-binding.yaml -n tekton-demo
+
+# create the event listener
+kubectl apply -f Triggers/event-listener.yaml -n tekton-demo
+
+# Create Ing; or in OCP, expose the event listener svc as route
+oc expose svc/el-tekton-event-listener -n tekton-demo
+```
+
+After this, we can get back the exposed endpoint and create a Webhook in GitHub Repo:
+1. Within the repo, click Settings -> Webhooks;
+2. Click "Add webhook" button at the right;
+3. Secret: keep it blank;
+4. Fill up the form:
+   - Payload URL: 
+   - Content type: `application/json`
+   - Which events would you like to trigger this webhook? Keep the default `Just the push event`
+
+Then once there is a commit, it will trigger the `PipelineRun` to run through the `Pipeline`.
 
 ## Clean Up
 

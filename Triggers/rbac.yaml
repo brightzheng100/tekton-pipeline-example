@@ -1,0 +1,128 @@
+---
+# tekton-triggers-role-minimal
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: tt-minimal
+  namespace: tekton-demo
+rules:
+# EventListeners need to be able to fetch all namespaced resources
+- apiGroups: ["triggers.tekton.dev"]
+  resources: ["eventlisteners", "triggerbindings", "triggertemplates", "triggers"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+ # secrets are only needed for GitHub/GitLab interceptors
+ # configmaps is needed for updating logging config
+  resources: ["configmaps", "secrets"]
+  verbs: ["get", "list", "watch"]
+ # Permissions to create resources in associated TriggerTemplates
+- apiGroups: ["tekton.dev"]
+  resources: ["pipelineruns", "pipelineresources", "taskruns"]
+  verbs: ["create"]
+- apiGroups: [""]
+  resources: ["serviceaccounts"]
+  verbs: ["impersonate"]
+- apiGroups: ["policy"]
+  resources: ["podsecuritypolicies"]
+  resourceNames: ["tekton-triggers"]
+  verbs: ["use"]
+---
+# tekton-triggers-webhook
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: tt-createwebhook
+  namespace: tekton-demo
+rules:
+  - apiGroups:
+      - ''
+    resources:
+      - secrets
+    verbs:
+      - get
+      - list
+      - create
+      - update
+      - delete
+  - apiGroups:
+      - triggers.tekton.dev
+    resources:
+      - eventlisteners
+    verbs:
+      - get
+      - list
+      - create
+      - update
+      - delete
+  - apiGroups:
+      - extensions
+    resources:
+      - ingresses
+    verbs:
+      - create
+      - get
+      - list
+      - delete
+      - update
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: tt-clusterrole-minimal
+rules:
+  # EventListeners need to be able to fetch any clustertriggerbindings
+- apiGroups: ["triggers.tekton.dev"]
+  resources: ["clustertriggerbindings"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: app-deployer-binding
+roleRef:
+  kind: Role
+  name: app-deployer-role
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+  - kind: ServiceAccount
+    name: tekton-pipeline
+    namespace: tekton-demo
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: tt-createwebhook-binding
+roleRef:
+  kind: Role
+  name: tt-createwebhook
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+  - kind: ServiceAccount
+    name: tekton-pipeline
+    namespace: tekton-demo
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: tt-minimal-binding
+roleRef:
+  kind: Role
+  name: tt-minimal
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+  - kind: ServiceAccount
+    name: tekton-pipeline
+    namespace: tekton-demo
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: tt-clusterrole-minimal-binding
+roleRef:
+  kind: ClusterRole
+  name: tt-clusterrole-minimal
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+  - kind: ServiceAccount
+    name: tekton-pipeline
+    namespace: tekton-demo
