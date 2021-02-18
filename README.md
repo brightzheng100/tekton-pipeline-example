@@ -5,11 +5,12 @@ This is a very simple but workable Tekton Pipeline development process that show
 - How to set up Tekton Pipeline, Dashboard from scratch;
 - How to reuse the predefined `Task`s from [https://github.com/tektoncd/catalog](https://github.com/tektoncd/catalog);
 - How to run through the `TaskRun`s step by step to walk through a typical Tekton pipeline development process;
-- How to consolidate the desired `Task`s to make it a Tekton `Pipeline`.
+- How to consolidate the desired `Task`s to make it a Tekton `Pipeline`;
+- How to enable `Trigger`s for more advanced event-driven CI/CD.
 
 As a result, we're going to have a very typical Tekton-powered pipeline which includes below steps:
 
-1. `Git` clone the configured Git repository, which is a very simple Spring Boot app, as the source;
+1. `Git` clone the configured Git repository, which is a very simple Spring Boot app [here](https://github.com/brightzheng100/spring-boot-docker), as the source;
 2. Use `Maven` to build the app;
 3. Use `Buildah` to build, by a given `Dockerfile`, and push the built image to target container registry;
 4. Deploy it to Kubernetes.
@@ -88,7 +89,10 @@ I reuse some of them to build the sample pipelines, which include:
 | buildah  | [https://github.com/tektoncd/catalog/tree/master/task/buildah/0.1](https://github.com/tektoncd/catalog/tree/master/task/buildah/0.1)  |
 | kubernetes-actions  | [https://github.com/tektoncd/catalog/tree/master/task/kubernetes-actions/0.1](https://github.com/tektoncd/catalog/tree/master/task/kubernetes-actions/0.1)  |
 
-I've already made a local copy and let's install them:
+I've already made a local copy of abovementioned `Task`s.
+There are some other handmade simple `Task`s too under `/Tasks` folder.
+
+Let's install them in one shot:
 
 ```sh
 $ kubectl apply -f Tasks/ -n tekton-demo
@@ -365,11 +369,12 @@ And then open your browser and access: http://localhost:9097
 
 ![Tekton UI](/screenshots/tekton-ui.png)
 
+
 ## Triggers
 
-Until now we have seen how to create Tasks and Pipelines and run them manually.
+Until now we have seen how to create `Task`s and `Pipeline`s and run them manually.
 
-It's time to explore how to trigger it automatically using Triggers, based on some events.
+It's time to explore how to trigger it automatically using `Trigger`s, based on desired events.
 
 ### Set Up Triggers in `tekton-pipelines` namespace
 
@@ -385,13 +390,16 @@ oc adm policy add-scc-to-user anyuid -z tekton-triggers-core-interceptors -n tek
 ### Typical Steps in `tekton-demo` working namespace
 
 ```sh
-# create the trigger template
+# RBAC
+kubectl apply -f Triggers/rbac.yaml -n tekton-demo
+
+# Create the trigger template
 kubectl apply -f Triggers/trigger-template.yaml -n tekton-demo
 
-# create the trigger binding
+# Create the trigger binding
 kubectl apply -f Triggers/trigger-binding.yaml -n tekton-demo
 
-# create the event listener
+# Create the event listener
 kubectl apply -f Triggers/event-listener.yaml -n tekton-demo
 
 # Create Ing; or in OCP, expose the event listener svc as route
@@ -399,15 +407,18 @@ oc expose svc/el-tekton-event-listener -n tekton-demo
 ```
 
 After this, we can get back the exposed endpoint and create a Webhook in GitHub Repo:
-1. Within the repo, click Settings -> Webhooks;
-2. Click "Add webhook" button at the right;
-3. Secret: keep it blank;
-4. Fill up the form:
-   - Payload URL: 
+1. Within the repo, click **Settings** -> **Webhooks**;
+2. Click **Add webhook** button at the right;
+3. Fill up the form:
+   - Payload URL: <The endpoint exposed for el-tekton-event-listener, e.g. route in OCP or ingress in K8s>
    - Content type: `application/json`
+   - Secret: keep it blank;
    - Which events would you like to trigger this webhook? Keep the default `Just the push event`
+   - Active: keep it checked
+4. Click **Add webhook** to save it.
 
-Then once there is a commit, it will trigger the `PipelineRun` to run through the `Pipeline`.
+Now, once there is a push to the repo, it will trigger the `PipelineRun` to run through the `Pipeline`, which is quite cool.
+
 
 ## Clean Up
 
