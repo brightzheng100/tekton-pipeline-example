@@ -414,7 +414,7 @@ Then once there is a commit, it will trigger the `PipelineRun` to run through th
 To clean up `tekton-demo` namespace:
 
 ```sh
-kubectl delete tr,pr,task,pipeline,pvc,route,svc,deployment --all -n tekton-demo
+kubectl delete tr,pr,task,pipeline,pvc,route,svc,deployment,tt,el,tb --all -n tekton-demo
 
 kubectl delete ns tekton-demo
 # or in OCP
