@@ -1,0 +1,29 @@
+# Sample Usage:
+#
+# tkn task start cat-file \
+#   --workspace=name=working-dir,claimName=shared-workspace \
+#   --param=path='src/main/java/hello/Application.java' \
+#   --showlog
+#
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: cat-file
+spec:
+  description: >-
+    Simple task to cat a specific file
+  params:
+    - name: path
+      type: string
+      description: the path relatively under workspace
+      default: '.'
+  workspaces:
+    - name: working-dir
+  steps:
+    - name: cat-file
+      image: busybox
+      command:
+        - cat
+      args:
+        - '$(params.path)'
+      workingDir: '$(workspaces.working-dir.path)'

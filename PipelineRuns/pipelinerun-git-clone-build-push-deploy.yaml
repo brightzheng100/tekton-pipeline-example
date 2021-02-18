@@ -12,7 +12,9 @@ spec:
   - name: tag-name
     value: master
   - name: image-full-path-with-tag
-    value: image-registry.openshift-image-registry.svc:5000/tekton-pipelines/spring-boot-docker:v1.0.0
+    value: image-registry.openshift-image-registry.svc:5000/tekton-demo/spring-boot-docker:v1.1.0
+  - name: deployment-manifest
+    value: https://raw.githubusercontent.com/brightzheng100/tekton-pipeline-example/master/manifests/deployment.yaml
   workspaces:
   - name: maven-settings
     configmap:
@@ -20,3 +22,6 @@ spec:
   - name: workspace
     persistentvolumeclaim:
       claimName: shared-workspace
+  - name: empty-dir
+    emptyDir: {}
+      

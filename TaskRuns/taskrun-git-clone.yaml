@@ -9,6 +9,8 @@ spec:
   params:
   - name: url
     value: https://github.com/brightzheng100/spring-boot-docker
+  - name: deleteExisting
+    value: "true"
   workspaces:
     - name: output
       #emptyDir: {}

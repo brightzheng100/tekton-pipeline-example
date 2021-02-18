@@ -1,0 +1,19 @@
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  generateName: kubernetes-actions-
+spec:
+  taskRef:
+    name: kubernetes-actions
+  params:
+    - name: script
+      value: |
+        kubectl apply -f https://raw.githubusercontent.com/brightzheng100/tekton-pipeline-example/master/manifests/deployment.yaml
+        echo "----------"
+        kubectl get deployment
+  workspaces:
+    - name: kubeconfig-dir
+      emptyDir: {}
+    - name: manifest-dir
+      emptyDir: {}
+  serviceAccountName: tekton-pipeline

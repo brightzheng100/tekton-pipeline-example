@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
         - name: myapp
-          image: image-registry.openshift-image-registry.svc:5000/tekton-pipelines/spring-boot-docker:v1.0.0
+          image: image-registry.openshift-image-registry.svc:5000/tekton-pipelines/spring-boot-docker:v1.1.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080

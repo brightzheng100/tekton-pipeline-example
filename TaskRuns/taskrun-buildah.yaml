@@ -7,7 +7,7 @@ spec:
     name: buildah
   params:
     - name: IMAGE
-      value: 'image-registry.openshift-image-registry.svc:5000/tekton-pipelines/spring-boot-docker'
+      value: 'image-registry.openshift-image-registry.svc:5000/tekton-demo/spring-boot-docker:v1.0.0'
     - name: TLSVERIFY
       value: 'false'
     - name: STORAGE_DRIVER

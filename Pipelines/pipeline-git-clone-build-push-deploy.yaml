@@ -21,11 +21,15 @@ spec:
   - name: image-full-path-with-tag
     type: string
     description: The image full path to host the built image, with version tag, e.g. image-registry.openshift-image-registry.svc:5000/tekton-pipelines/spring-boot-docker:v1.0.0.
+  - name: deployment-manifest
+    type: string
+    description: The manifest file for deployment.
 
   # Workspaces
   workspaces:
   - name: workspace
   - name: maven-settings
+  - name: empty-dir
   
   # Taksks
   tasks:
@@ -64,7 +68,7 @@ spec:
     - name: source
       workspace: workspace
 
-  # 3. Task - buildah
+  # 3. Task - buildah build & push
   - name: buildah
     taskRef:
       name: buildah
@@ -80,3 +84,21 @@ spec:
     workspaces:
       - name: source
         workspace: workspace
+
+  # 4. Task - kubectl deploy
+  - name: deploy
+    taskRef:
+      name: kubernetes-actions
+    runAfter:
+    - buildah
+    params:
+      - name: script
+        value: |
+          kubectl apply -f $(params.deployment-manifest)
+          echo "----------"
+          kubectl get deployment
+    workspaces:
+      - name: kubeconfig-dir
+        workspace: empty-dir
+      - name: manifest-dir
+        workspace: empty-dir
