@@ -1,15 +1,25 @@
 # Tekton Pipeline Example
 
-This is a very simple but workable Tekton Pipeline which can achieve a typical "build-push-scan-deploy" process.
+This is a very simple but workable Tekton Pipeline development process that showcases:
 
-Copied from https://github.com/kabanero-io/collections/tree/master/incubator/common/pipelines/default with necessary modifications.
+- How to set up Tekton Pipeline, Dashboard from scratch;
+- How to reuse the predefined `Task`s from [https://github.com/tektoncd/catalog](https://github.com/tektoncd/catalog);
+- How to run through the `TaskRun`s step by step to walk through a typical Tekton pipeline development process;
+- How to consolidate the desired `Task`s to make it a Tekton `Pipeline`.
+
+As a result, we're going to have a very typical Tekton-powered pipeline which includes below steps:
+
+1. `Git` clone the configured Git repository, which is a very simple Spring Boot app, as the source;
+2. Use `Maven` to build the app;
+3. Use `Buildah` to build, by a given `Dockerfile`, and push the built image to target container registry;
+4. Deploy it to Kubernetes.
 
 
 ## Prerequisites
 
 Assuming you already have Tekton set up.
 
-You may simply run below commands to get ready:
+If not, you may simply run below commands to set it up in seconds:
 
 ```sh
 # Tekton Pipelines
