@@ -425,7 +425,9 @@ Now, once there is a push to the repo, it will trigger the `PipelineRun` to run 
 To clean up `tekton-demo` namespace:
 
 ```sh
-kubectl delete tr,pr,task,pipeline,pvc,route,svc,deployment,tt,el,tb --all -n tekton-demo
+# Instances
+kubectl delete tr,pr,task,pipeline,pvc,route,svc,deployment --all -n tekton-demo
+kubectl delete tt,tb,el --all -n tekton-demo
 
 kubectl delete ns tekton-demo
 # or in OCP
@@ -435,8 +437,13 @@ oc delete project tekton-demo
 To clean up `tekton-pipelines` namespace:
 
 ```sh
+# Tekton Triggers
+kubectl delete -f https://storage.googleapis.com/tekton-releases/triggers/previous/v0.11.2/release.yaml
+
+# Tekton Dashboard
 kubectl delete -f https://github.com/tektoncd/dashboard/releases/latest/download/tekton-dashboard-release.yaml
 
+# Tekton Pipeline
 kubectl delete -f https://raw.githubusercontent.com/openshift/tektoncd-pipeline/release-v0.16.3/openshift/release/tektoncd-pipeline-v0.16.3.yaml
 ```
 
