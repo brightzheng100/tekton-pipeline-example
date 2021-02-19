@@ -15,6 +15,8 @@ As a result, we're going to have a very typical Tekton-powered pipeline which in
 3. Use `Buildah` to build, by a given `Dockerfile`, and push the built image to target container registry;
 4. Deploy it to Kubernetes.
 
+![architecture](architecture/architecture.png)
+
 
 ## Prerequisites
 
